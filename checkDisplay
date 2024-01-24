@@ -1,0 +1,64 @@
+function checkDisplays() 
+{
+  var apiKey = 'DHVsKduOGwiMrbSn';
+  // Hardcoded user IDs
+  var userIds = ['2746597', '2592532'];
+  
+  // Get the active spreadsheet
+  //var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  //var sheet = spreadsheet.getSheetByName('Plushie/Flower Totals');
+  
+  // Hardcoded start cells
+  var startCellPlushie = 'C15';
+  var startCellFlower = 'C4';
+  var collumn = 'C';
+  var plushieRow = 4;
+  var flowerRow = 15;
+  var user = 1;
+  //var outputCell = sheet.getRange('C4')
+
+  // Loop through each user ID
+  for (var k = 0; k < userIds.length; k++) {
+    Logger.log('user: ' + user);
+    var userId = userIds[k].trim();
+    user++;
+    var url = 'https://api.torn.com/user/' + userId + '?selections=display&key=' + apiKey;
+    
+    var response = UrlFetchApp.fetch(url);
+    var userData = JSON.parse(response.getContentText());
+    // Get display case information
+    var displayCase = userData.display;
+    // Iterate through all items in the display case
+    for (var itemID in displayCase) {
+      if (displayCase.hasOwnProperty(itemID)) 
+      {
+        var itemInfo = displayCase[itemID];
+        
+        // Extract name and quantity
+        var itemName = itemInfo.name;
+        var itemQuantity = itemInfo.quantity;
+        Logger.log('Item Name: ' + itemName);
+        Logger.log('Item Quantity: ' + itemQuantity);     
+
+        if (itemName == 'Jaguar Plushie')
+        {
+              var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+              sheet.getRange("C15").setValue(itemQuantity);
+        }
+
+
+        
+        // Output the information to the sheet
+        var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+        sheet.appendRow([itemName, itemQuantity]);
+      }
+    
+      else 
+      {
+      Logger.log('Error fetching data for user ' + userID);
+      }
+    }
+    plushieRow++;
+    flowerRow++
+  }
+}
