@@ -1,6 +1,6 @@
 function updateMarketValue()
 {
-  var apiKey = 'DHVsKduOGwiMrbSn';
+  var apiKey = 'torn_api_key';
   // Get the active spreadsheet
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   // Identify the sheet in the spreadsheet to use
@@ -71,7 +71,7 @@ function emptySpreadsheet()
 
 function checkDisplays() 
 {
-  var apiKey = 'YOUR_APIKEY_HERE'; 
+  var apiKey = 'torn_api_key'; 
   // rows for plushies and flowers text
   var itemType = 'null';
   var sheetName = '';
