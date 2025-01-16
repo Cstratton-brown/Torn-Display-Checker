@@ -1,3 +1,17 @@
+function emptySpreadsheet() 
+{
+  //replaces all numerical values in the tables with a value of 0 
+  SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Flowers').getRange(3, 3, 20, 11).setValue(0);
+  //gets active spreadsheet, specifies the flowers sheet, sets the tables range, specifies the value to fill the range with
+  
+  SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Plushies').getRange(3, 3, 20, 13).setValue(0);
+  SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Artifacts').getRange(3, 2, 20, 3).setValue(0);
+  SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Artifacts').getRange(3, 6, 20, 3).setValue(0)
+  SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Artifacts').getRange(3, 10, 20, 3).setValue(0)
+  SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Artifacts').getRange(3, 14, 20, 4).setValue(0)
+  Logger.log('Sheet Cleared');
+}
+
 function checkDisplays() 
 {
   var apiKey = 'YOUR_APIKEY_HERE'; 
