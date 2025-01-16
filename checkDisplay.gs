@@ -1,3 +1,60 @@
+function updateMarketValue()
+{
+  var apiKey = 'DHVsKduOGwiMrbSn';
+  // Get the active spreadsheet
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  // Identify the sheet in the spreadsheet to use
+  // Load item reference JSON  
+  const jsonItemString = HtmlService.createHtmlOutputFromFile("item_reference.json.html").getContent();
+  const priceReference = JSON.parse(jsonItemString);
+  var url = 'https://api.torn.com/torn/?selections=items&key=' + apiKey;
+
+ // Make API request
+  var response = UrlFetchApp.fetch(url);
+
+  if (response.getResponseCode() == 200) 
+    {
+      var itemData = JSON.parse(response.getContentText());
+      
+      var items = itemData.items;
+
+      for (var ID in items) 
+      {
+        if (items.hasOwnProperty(ID))
+        {
+          var itemId = items[ID];
+          if (priceReference.items[itemId.name])
+          {
+            // If found, log the item name and market value
+            var item = priceReference.items[itemId.name];
+            var itemColumn = priceReference.items[itemId.name].collumn;
+            if (items[ID].type == 'Flower')
+            {
+              var sheet = spreadsheet.getSheetByName('Flowers');
+              // Return the collum of the username cell
+              var cellRow = '26';
+              
+            }
+            else if (items[ID].type == 'Plushie')
+            {
+              var sheet = spreadsheet.getSheetByName('Plushies');           
+              // Return the collum of the username cell 
+              var cellRow = '26';             
+
+            }
+            else if  (items[ID].type == 'Artifact')
+            {
+              var sheet = spreadsheet.getSheetByName('Artifacts');           
+              // Return the collum of the username cell
+              var cellRow = '24';
+            }
+            sheet.getRange(cellRow, itemColumn).setValue(items[ID].market_value); 
+          }
+        }
+      }
+    }
+}
+
 function emptySpreadsheet() 
 {
   //replaces all numerical values in the tables with a value of 0 
