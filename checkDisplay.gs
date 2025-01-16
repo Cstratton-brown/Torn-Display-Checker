@@ -1,7 +1,7 @@
 function checkDisplays() 
 {
   var apiKey = 'YOUR_APIKEY_HERE'; 
-    // rows for plushies and flowers text
+  // rows for plushies and flowers text
   var itemType = 'null';
   var sheetName = '';
   var flowerType = 'flower';
@@ -39,7 +39,6 @@ function checkDisplays()
       {
         var userData = JSON.parse(response.getContentText());
         var userName = userID;
-        Logger.log('User: '+userName +'[' + userID + ']');
         // Get display case information
         var displayCase = userData.display;
 
@@ -57,6 +56,41 @@ function checkDisplays()
         
         // Return the row of the username cell for plushies
         var cellRowPlushie = usernameCellPlushie.getRow();  
+
+        //For loop to autofill item spaces with the value 0 before it checks the amounts in the display cases
+        for (var itemName in itemReference.items)
+        {
+          if (itemReference.items.hasOwnProperty(itemName))
+          {
+            //Logger.log(itemName)
+            // Retrieve the attribute associated with the item
+            var itemType = itemReference.items[itemName].type;
+            var sheetName = itemReference.items[itemName].name;
+
+            // Find the cell containing the flower name in the specified range
+            if (itemType == flowerType)
+            {
+            var searchRangeFlower = sheet.getRange(1, 3, 2, 15);
+            var flowerCell = searchRangeFlower.createTextFinder(sheetName).findNext();
+            // Return the collum of the username cell
+            var cellCollum = flowerCell.getColumn(); 
+            var cellRow = cellRowFlower;
+            }
+
+            // Find the cell containing the plushie name in the specified range
+            else if (itemType == plushieType)
+            {
+            var searchRangePlushie = sheet.getRange(13, 3, 1, 20);
+            var plushieCell = searchRangePlushie.createTextFinder(sheetName).findNext();                
+            // Return the collum of the username cell
+            var cellCollum = plushieCell.getColumn(); 
+            var cellRow = cellRowPlushie;             
+            }
+            //insert the default quantity of the item into the cell based of the row of username and the collum of the item name
+            sheet.getRange(cellRow, cellCollum).setValue(0);              
+            } 
+          }
+        }
 
         // Iterate through all items in the display case
         for (var itemID in displayCase) 
@@ -95,12 +129,12 @@ function checkDisplays()
                   var cellCollum = plushieCell.getColumn(); 
                   var cellRow = cellRowPlushie;             
                 }
-                //insert the returned quantity of the item into the cell that based of the row of username and the collum of the item name
+                //insert the returned quantity of the item into the cell based of the row of username and the collum of the item name
                 sheet.getRange(cellRow, cellCollum).setValue(itemAmount);              
               } 
               else
               {
-                Logger.log('Warning: Item "' + itemName + '" not found in itemReference.json.');
+                //Logger.log('Warning: Item "' + itemName + '" not found in itemReference.json.');
                 // Handle the case when the item is not found in the reference (e.g., log a warning)
               }
             }
@@ -109,5 +143,4 @@ function checkDisplays()
       }
     }
   }
-}
 }
