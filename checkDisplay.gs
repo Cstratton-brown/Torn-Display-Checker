@@ -102,19 +102,21 @@ function tallyChanges() {
 
 function checkDisplays() 
 {
-  var apiKey = 'torn_api_key'; 
-  // rows for plushies and flowers text
+  emptySpreadsheet();
+  updateMarketValue();
+  var apiKey = 'torn_api_key';
+  // initialization of variables used to store info from the json files
   var itemType = 'null';
-  var sheetName = '';
   var flowerType = 'flower';
   var plushieType = 'plushie';
-  var cellRow = '1';
+  var artifactType= 'Artifact';
   var itemAmount = '0';
   // Get the active spreadsheet
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   
-  // Replace 'Sheet1' with the name of your sheet
+  // Identify the sheet in the spreadsheet to use
   var sheet = spreadsheet.getSheetByName('Plushie/Flower Totals');
+
 
   // Load item reference JSON  
   const jsonItemString = HtmlService.createHtmlOutputFromFile("item_reference.json.html").getContent();
@@ -132,7 +134,7 @@ function checkDisplays()
     {
       var url = 'https://api.torn.com/user/' + userID + '?selections=display,profile&key=' + apiKey;
 
-      Logger.log('User: ' + userID);
+      //Logger.log('User: ' + userID);
 
       // Make API request
       var response = UrlFetchApp.fetch(url);
@@ -145,54 +147,7 @@ function checkDisplays()
         var displayCase = userData.display;
 
         // Find the rows with the user ID using user mapping
-        var userIDRows = userMapping.users[userID];
-
-        // Find the cell containing the username in the specified range
-        var searchRangeNameFlower = sheet.getRange(4, 1, 6, 1);
-        var searchRangeNamePlushie = sheet.getRange(15, 1, 6, 1);
-        var usernameCellFlower = searchRangeNameFlower.createTextFinder(userName).findNext();
-        var usernameCellPlushie = searchRangeNamePlushie.createTextFinder(userName).findNext();
-
-        // Return the row of the username cell for flowers
-        var cellRowFlower = usernameCellFlower.getRow();
-        
-        // Return the row of the username cell for plushies
-        var cellRowPlushie = usernameCellPlushie.getRow();  
-
-        //For loop to autofill item spaces with the value 0 before it checks the amounts in the display cases
-        for (var itemName in itemReference.items)
-        {
-          if (itemReference.items.hasOwnProperty(itemName))
-          {
-            //Logger.log(itemName)
-            // Retrieve the attribute associated with the item
-            var itemType = itemReference.items[itemName].type;
-            var sheetName = itemReference.items[itemName].name;
-
-            // Find the cell containing the flower name in the specified range
-            if (itemType == flowerType)
-            {
-            var searchRangeFlower = sheet.getRange(1, 3, 2, 15);
-            var flowerCell = searchRangeFlower.createTextFinder(sheetName).findNext();
-            // Return the collum of the username cell
-            var cellCollum = flowerCell.getColumn(); 
-            var cellRow = cellRowFlower;
-            }
-
-            // Find the cell containing the plushie name in the specified range
-            else if (itemType == plushieType)
-            {
-            var searchRangePlushie = sheet.getRange(13, 3, 1, 20);
-            var plushieCell = searchRangePlushie.createTextFinder(sheetName).findNext();                
-            // Return the collum of the username cell
-            var cellCollum = plushieCell.getColumn(); 
-            var cellRow = cellRowPlushie;             
-            }
-            //insert the default quantity of the item into the cell based of the row of username and the collum of the item name
-            sheet.getRange(cellRow, cellCollum).setValue(0);              
-            } 
-          }
-        }
+        var userRow = userMapping.users[userName].row;
 
         // Iterate through all items in the display case
         for (var itemID in displayCase) 
@@ -212,27 +167,22 @@ function checkDisplays()
               {
                 // Retrieve the attribute associated with the item
                 var itemType = itemReference.items[itemName].type;
-                var sheetName = itemReference.items[itemName].name;
+                var itemColumn = itemReference.items[itemName].collumn;
                 // Find the cell containing the flower name in the specified range
                 if (itemType == flowerType)
                 {
-                  var searchRangeFlower = sheet.getRange(1, 3, 2, 15);
-                  var flowerCell = searchRangeFlower.createTextFinder(sheetName).findNext();
-                  // Return the collum of the username cell
-                  var cellCollum = flowerCell.getColumn(); 
-                  var cellRow = cellRowFlower;
+                  var sheet = spreadsheet.getSheetByName('Flowers');
                 }
                 else if (itemType == plushieType)
                 {
-                  // Find the cell containing the plushie name in the specified range
-                  var searchRangePlushie = sheet.getRange(13, 3, 1, 20);
-                  var plushieCell = searchRangePlushie.createTextFinder(sheetName).findNext();                
-                  // Return the collum of the username cell
-                  var cellCollum = plushieCell.getColumn(); 
-                  var cellRow = cellRowPlushie;             
+                  var sheet = spreadsheet.getSheetByName('Plushies');          
+                }
+                else if (itemType == artifactType)
+                {
+                  var sheet = spreadsheet.getSheetByName('Artifacts');     
                 }
                 //insert the returned quantity of the item into the cell based of the row of username and the collum of the item name
-                sheet.getRange(cellRow, cellCollum).setValue(itemAmount);              
+                sheet.getRange(userRow, itemColumn).setValue(itemAmount);              
               } 
               else
               {
@@ -245,4 +195,5 @@ function checkDisplays()
       }
     }
   }
+  tallyChanges();
 }
