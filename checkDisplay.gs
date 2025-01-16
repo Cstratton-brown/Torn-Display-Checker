@@ -69,6 +69,37 @@ function emptySpreadsheet()
   Logger.log('Sheet Cleared');
 }
 
+function tallyChanges() {
+  // Set a comment on the edited cell to indicate when it was changed.
+  var discordUrl = "discord_webhook_url";
+
+  var sheetname = SpreadsheetApp.getActiveSpreadsheet();
+
+  //var plushieMaths =SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Plushies').getRange(3, 23, 1, 13).getValues;
+  //Logger.log(plushieMaths);
+
+  //var lowestPlushie;
+  //var lowestFlower;
+  var totalPoints = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Maths').getRange('S9').getValue();
+  var totalFlowerSets = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Flowers').getRange('N23').getValue();
+  var totalPlushieSets = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Plushies').getRange('P23').getValue();
+  var totalSets = totalFlowerSets + totalPlushieSets;
+
+  var message = " Total Sets: " + totalSets + " Total Points: " + totalPoints;
+  
+  var payload = JSON.stringify({content: message});
+  
+  var params = {
+    method: "POST",
+    payload: payload,
+    muteHttpExceptions: true,
+    contentType: "application/json"
+    };
+
+  var response = UrlFetchApp.fetch(discordUrl, params);
+
+}
+
 function checkDisplays() 
 {
   var apiKey = 'torn_api_key'; 
