@@ -1,16 +1,26 @@
 function updateMarketValue()
 {
   var apiKey = 'torn_api_key';
+
+  const params = 
+  {
+     method : "GET",
+     contentType : "application/json", 
+     headers : {
+        Authorization : `ApiKey ${apiKey}`
+     }
+  }
+
   // Get the active spreadsheet
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   // Identify the sheet in the spreadsheet to use
   // Load item reference JSON  
   const jsonItemString = HtmlService.createHtmlOutputFromFile("item_reference.json.html").getContent();
   const priceReference = JSON.parse(jsonItemString);
-  var url = 'https://api.torn.com/torn/?selections=items&key=' + apiKey;
+  const url = 'https://api.torn.com/v2/torn?selections=items';
 
  // Make API request
-  var response = UrlFetchApp.fetch(url);
+  var response = UrlFetchApp.fetch(url, params);
 
   if (response.getResponseCode() == 200) 
     {
