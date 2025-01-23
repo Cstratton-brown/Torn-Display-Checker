@@ -200,7 +200,17 @@ function checkDisplays()
 {
   emptySpreadsheet();
   updateMarketValue();
-  var apiKey = 'torn_api_key';
+  var apiKey = 'Torn_API_Key';
+  
+  const params = 
+  {
+     method : "GET",
+     contentType : "application/json", 
+     headers : {
+        Authorization : `ApiKey ${apiKey}`
+     }
+  }
+  
   // initialization of variables used to store info from the json files
   var itemType = 'null';
   var flowerType = 'flower';
@@ -228,12 +238,10 @@ function checkDisplays()
   {
     if (userMapping.users.hasOwnProperty(userID)) 
     {
-      var url = 'https://api.torn.com/user/' + userID + '?selections=display,profile&key=' + apiKey;
-
-      //Logger.log('User: ' + userID);
+        var url = 'https://api.torn.com/v2/user?selections=display&id='  + userID;
 
       // Make API request
-      var response = UrlFetchApp.fetch(url);
+      var response = UrlFetchApp.fetch(url, params);
 
       if (response.getResponseCode() == 200) 
       {
