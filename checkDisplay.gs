@@ -1,16 +1,26 @@
 function updateMarketValue()
 {
   var apiKey = 'torn_api_key';
+
+  const params = 
+  {
+     method : "GET",
+     contentType : "application/json", 
+     headers : {
+        Authorization : `ApiKey ${apiKey}`
+     }
+  }
+
   // Get the active spreadsheet
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   // Identify the sheet in the spreadsheet to use
   // Load item reference JSON  
   const jsonItemString = HtmlService.createHtmlOutputFromFile("item_reference.json.html").getContent();
   const priceReference = JSON.parse(jsonItemString);
-  var url = 'https://api.torn.com/torn/?selections=items&key=' + apiKey;
+  const url = 'https://api.torn.com/v2/torn?selections=items';
 
  // Make API request
-  var response = UrlFetchApp.fetch(url);
+  var response = UrlFetchApp.fetch(url, params);
 
   if (response.getResponseCode() == 200) 
     {
@@ -71,21 +81,117 @@ function emptySpreadsheet()
 
 function tallyChanges() {
   // Set a comment on the edited cell to indicate when it was changed.
-  var discordUrl = "discord_webhook_url";
+  var discordUrl = "https://discord.com/api/webhooks/1200614425053364245/lxbvl6tb3lqutJ9FeCiqIzEJJYpBQ44ghTW2HaWUCnMgQuUR7MupIwodMIgg7GMOaBo4";
+  var plushieMaths =SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Plushies').getRange(23, 3, 1, 13).getValues();
+  var flowersMaths =SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Flowers').getRange(23, 3, 1, 11).getValues();
+  var lowestPlushie;
+  var lowestFlower;
 
-  var sheetname = SpreadsheetApp.getActiveSpreadsheet();
+  var plushieIndex = 0;
+  for (let i = 0; i < 13; i++)
+    {
+      //plushiesAmounts.push(plushieMaths[i])
+      if (plushieMaths[0][i] < plushieMaths[0][plushieIndex])
+      {
+        plushieIndex = i;
+      } 
+      //var plushieLowest = 
+    }
+  switch (plushieIndex)
+  {
+    case 0:
+      lowestPlushie = "Jaguar";
+      break;
+    case 1:
+      lowestPlushie = "Stingray";
+      break;
+    case 2:
+      lowestPlushie = "Wolverine";
+      break;
+    case 3:
+      lowestPlushie = "Red Fox";
+      break;
+    case 4:
+      lowestPlushie = "Nessie";
+      break;
+    case 5:
+      lowestPlushie = "Monkey";
+      break;
+    case 6:
+      lowestPlushie = "Chamois";
+      break;
+    case 7:
+      lowestPlushie = "Panda";
+      break;
+    case 8:
+      lowestPlushie = "Camel";
+      break;
+    case 9:
+      lowestPlushie = "Lion";
+      break;
+    case 10:
+      lowestPlushie = "Sheep";
+      break;
+    case 11:
+      lowestPlushie = "Teddy";
+      break;
+    case 12:
+      lowestPlushie = "Kitten";    
+  }
+  Logger.log(lowestPlushie);
 
-  //var plushieMaths =SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Plushies').getRange(3, 23, 1, 13).getValues;
-  //Logger.log(plushieMaths);
+  var flowerIndex = 0;
+  for (let i = 0; i < 11; i++)
+    {
+      //plushiesAmounts.push(plushieMaths[i])
+      if (flowersMaths[0][i] < flowersMaths[0][flowerIndex])
+      {
+        flowerIndex = i;
+      } 
+    }
+  switch (flowerIndex)
+  {
+    case 0:
+      lowestFlower = "Dahlia";
+      break;
+    case 1:
+      lowestFlower = "Banana Orchid";
+      break;
+    case 2:
+      lowestFlower = "Crocus";
+      break;
+    case 3:
+      lowestFlower = "Orchid";
+      break;
+    case 4:
+      lowestFlower = "Heather";
+      break;
+    case 5:
+      lowestFlower = "Ceibo";
+      break;
+    case 6:
+      lowestFlower = "Edelweiss";
+      break;
+    case 7:
+      lowestFlower = "Cherry Blossom";
+      break;
+    case 8:
+      lowestFlower = "Peony";
+      break;
+    case 9:
+      lowestFlower = "Tribulus";
+      break;
+    case 10:
+      lowestFlower = "African Violet"; 
+  }
+  Logger.log(lowestFlower);
 
-  //var lowestPlushie;
-  //var lowestFlower;
   var totalPoints = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Maths').getRange('S9').getValue();
   var totalFlowerSets = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Flowers').getRange('N23').getValue();
   var totalPlushieSets = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Plushies').getRange('P23').getValue();
   var totalSets = totalFlowerSets + totalPlushieSets;
 
-  var message = " Total Sets: " + totalSets + " Total Points: " + totalPoints;
+  var message = " Total Sets: " + totalSets + " Total Points: " + totalPoints + " Lowest Plusie: " + lowestPlushie + " Lowest Flower: " + lowestFlower;
   
   var payload = JSON.stringify({content: message});
   
@@ -104,7 +210,17 @@ function checkDisplays()
 {
   emptySpreadsheet();
   updateMarketValue();
-  var apiKey = 'torn_api_key';
+  var apiKey = 'Torn_API_Key';
+  
+  const params = 
+  {
+     method : "GET",
+     contentType : "application/json", 
+     headers : {
+        Authorization : `ApiKey ${apiKey}`
+     }
+  }
+  
   // initialization of variables used to store info from the json files
   var itemType = 'null';
   var flowerType = 'flower';
@@ -132,12 +248,10 @@ function checkDisplays()
   {
     if (userMapping.users.hasOwnProperty(userID)) 
     {
-      var url = 'https://api.torn.com/user/' + userID + '?selections=display,profile&key=' + apiKey;
-
-      //Logger.log('User: ' + userID);
+        var url = 'https://api.torn.com/v2/user?selections=display&id='  + userID;
 
       // Make API request
-      var response = UrlFetchApp.fetch(url);
+      var response = UrlFetchApp.fetch(url, params);
 
       if (response.getResponseCode() == 200) 
       {
