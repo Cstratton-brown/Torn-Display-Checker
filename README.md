@@ -2,7 +2,10 @@
 Code written in Javascript intended to be used as a google Apps Script addition to a spreadsheet for the tracking of flowers, plushies and artifacts for the text based MMO Torn. The main intedned use for this is to track and record the contribution of multiple users in preperation for the yearly Museum Day Event. The code is designed based on a max group of 20 although this amount can be extended easily both on the spreadsheet and the within the code. The spreadsheet also includes a page for the distribution of points designed in such a way that everyone gets at a minimum the amount of points from the sets of flowers, plushies and artifcats that they have contributed, any leftover sets made up from all the leftover items are then distributed equally between all participants,
 
 ## checkDisplay.GS
-This is the core functionality of the code and contains the 4 functions that are used to update the spreadsheet and send results to discord.
+This is the core functionality of the code and contains the core functionality that are used to update the spreadsheet and send results to discord.
+
+### generateUserReference()
+This function creates an array of objects and then fills it with the data found within the userReference pag on the spreadsheet. It grabs the range of the entire page, which has been limited to only collumns and rows containing needed data, and then gets the values from within there. It then uses a For Loop to itterate each row of data as a new object into the Array using the first row of headers as the properties.
 
 ### emptySpreadsheet()
 This function is simple but important as all it does is prefill the tables with 0 values. This is needed as without the 0 values the formulas used on each page to tally up sets and lowest amounts will detect a null value and break as a result. This runs att the start each time incase a user removes items from their display case so that a previous amount is left displayed when in there is in fact 0 of that item within the users display case
