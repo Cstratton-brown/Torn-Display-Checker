@@ -262,17 +262,15 @@ function checkDisplays()
   const jsonItemString = HtmlService.createHtmlOutputFromFile("item_reference.json.html").getContent();
   const itemReference = JSON.parse(jsonItemString);
 
-  // Load user mapping JSON
-  const jsonUsersString = HtmlService.createHtmlOutputFromFile("user_mapping.json.html").getContent();
-  const userMapping = JSON.parse(jsonUsersString);
-
+ // Load user mapping JSON
+  const userMapping = generateUserReference();
 
   // Iterate through all users in the mapping
-  for (var userID in userMapping.users) 
+  for (var playerID in userMapping) 
   {
-    if (userMapping.users.hasOwnProperty(userID)) 
+    if (userMapping.hasOwnProperty(playerID)) 
     {
-        var url = 'https://api.torn.com/v2/user?selections=display&id='  + userID;
+        var url = 'https://api.torn.com/v2/user?selections=display&id='  + playerID;
 
       // Make API request
       var response = UrlFetchApp.fetch(url, params);
@@ -280,12 +278,13 @@ function checkDisplays()
       if (response.getResponseCode() == 200) 
       {
         var userData = JSON.parse(response.getContentText());
-        var userName = userID;
+        var userName = playerID;
         // Get display case information
         var displayCase = userData.display;
 
         // Find the rows with the user ID using user mapping
-        var userRow = userMapping.users[userName].row;
+        var userRow = userMapping[playerID].row;
+        
 
         // Iterate through all items in the display case
         for (var itemID in displayCase) 
@@ -293,7 +292,6 @@ function checkDisplays()
           if (displayCase.hasOwnProperty(itemID)) 
           {
             var itemInfo = displayCase[itemID];
-
             // Check if the item has a name and quantity
             if (itemInfo && 'name' in itemInfo && 'quantity' in itemInfo) 
             {
