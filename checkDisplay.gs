@@ -1,3 +1,27 @@
+function generateUserReference()
+{
+  var outputObject = {};
+  const sheetName = 'userReference';
+
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+  var dataRange = sheet.getDataRange();
+  const [headers,...sheetValues] = dataRange.getValues();
+  
+  sheetValues.forEach( (row, indexRowPosition) => {
+
+    const rowObject = {
+      rowIndex : indexRowPosition + 1
+
+    }
+    headers.forEach((key, indexColumnPosition) => {
+      rowObject[key] = row[indexColumnPosition]
+  })
+  outputObject[rowObject.playerID] = rowObject
+  })
+  Logger.log(outputObject);
+  return outputObject;
+}
+
 function updateMarketValue()
 {
   var apiKey = 'torn_api_key';
