@@ -230,6 +230,39 @@ function tallyChanges() {
 
 }
 
+function checkEvents()
+{
+var apiKey = 'torn_api_key';
+//must be a full access API Key as it pulls your personal logs
+
+
+var timestamp = (Math.floor((Date.now() - 48 * 60 * 60 * 1000) / 1000).toString());
+
+  const params = 
+  {
+     method : "GET",
+     contentType : "application/json", 
+     headers : {
+        Authorization : `ApiKey ${apiKey}`
+     }
+  }
+
+  var url = 'https://api.torn.com/v2/user?selections=log&from=' + timestamp + '&log=4810';
+  // Make API request
+  var response = UrlFetchApp.fetch(url, params);
+  if (response.getResponseCode() == 200) 
+      {
+        var eventLog = JSON.parse(response.getContentText());
+
+
+        var user = eventLog.sender
+        Logger.log(response);
+        var message = eventLog.message
+        Logger.log(timestamp);
+        //for ()
+}
+}
+
 function checkDisplays() 
 {
   emptySpreadsheet();
