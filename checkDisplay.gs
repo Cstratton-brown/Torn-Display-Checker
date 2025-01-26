@@ -234,10 +234,7 @@ function checkEvents()
 {
 var apiKey = 'torn_api_key';
 //must be a full access API Key as it pulls your personal logs
-
-
 var timestamp = (Math.floor((Date.now() - 48 * 60 * 60 * 1000) / 1000).toString());
-
   const params = 
   {
      method : "GET",
@@ -254,15 +251,40 @@ var timestamp = (Math.floor((Date.now() - 48 * 60 * 60 * 1000) / 1000).toString(
       {
         var eventLog = JSON.parse(response.getContentText());
 
-
+        var logs = eventLog.log
         var user = eventLog.sender
-        Logger.log(response);
-        var message = eventLog.message
-        Logger.log(timestamp);
-        //for ()
-}
-}
+        //Logger.log(response);
+        //var message = eventLog.message
+        //Logger.log(timestamp);
 
+        //Object.entries(eventLog.log).forEach(([logId, logJson]) => {const { data:{sender, money, message}, timestamp } = logJson});
+        //Logger.log(logJson)
+
+        for (var sender in logs)
+        {
+          if (logs.hasOwnProperty(sender))
+          {
+            var logEntry = logs[sender];
+            var message = logEntry.data.message
+            var user = logEntry.data.sender
+            Logger.log(message)
+            if (message == 'test')
+            {
+            Logger.log('test found from ' + user);
+            addUser(user)
+            }
+            else if (message == 'Test')
+            {
+              Logger.log(user + ' sent wrong word');
+              removeUser(user)
+            }
+            //for ()
+            //{}
+          }
+        }
+
+}
+}
 function checkDisplays() 
 {
   emptySpreadsheet();
