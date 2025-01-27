@@ -105,7 +105,7 @@ function emptySpreadsheet()
 
 function tallyChanges() {
   // Set a comment on the edited cell to indicate when it was changed.
-  var discordUrl = "https://discord.com/api/webhooks/1200614425053364245/lxbvl6tb3lqutJ9FeCiqIzEJJYpBQ44ghTW2HaWUCnMgQuUR7MupIwodMIgg7GMOaBo4";
+  var discordUrl = "discord_webhook_url";
   var plushieMaths =SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Plushies').getRange(23, 3, 1, 13).getValues();
   var flowersMaths =SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Flowers').getRange(23, 3, 1, 11).getValues();
   var lowestPlushie;
