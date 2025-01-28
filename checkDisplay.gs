@@ -1,3 +1,27 @@
+function generateUserReference()
+{
+  var outputObject = {};
+  const sheetName = 'userReference';
+
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+  var dataRange = sheet.getDataRange();
+  const [headers,...sheetValues] = dataRange.getValues();
+  
+  sheetValues.forEach( (row, indexRowPosition) => {
+
+    const rowObject = {
+      rowIndex : indexRowPosition + 1
+
+    }
+    headers.forEach((key, indexColumnPosition) => {
+      rowObject[key] = row[indexColumnPosition]
+  })
+  outputObject[rowObject.playerID] = rowObject
+  })
+  Logger.log(outputObject);
+  return outputObject;
+}
+
 function updateMarketValue()
 {
   var apiKey = 'torn_api_key';
@@ -81,7 +105,7 @@ function emptySpreadsheet()
 
 function tallyChanges() {
   // Set a comment on the edited cell to indicate when it was changed.
-  var discordUrl = "https://discord.com/api/webhooks/1200614425053364245/lxbvl6tb3lqutJ9FeCiqIzEJJYpBQ44ghTW2HaWUCnMgQuUR7MupIwodMIgg7GMOaBo4";
+  var discordUrl = "discord_webhook_url";
   var plushieMaths =SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Plushies').getRange(23, 3, 1, 13).getValues();
   var flowersMaths =SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Flowers').getRange(23, 3, 1, 11).getValues();
   var lowestPlushie;
@@ -206,6 +230,141 @@ function tallyChanges() {
 
 }
 
+function checkEvents()
+{
+var apiKey = 'torn_api_key';
+//must be a full access API Key as it pulls your personal logs
+var timestamp = (Math.floor((Date.now() - 48 * 60 * 60 * 1000) / 1000).toString());
+  const params = 
+  {
+     method : "GET",
+     contentType : "application/json", 
+     headers : {
+        Authorization : `ApiKey ${apiKey}`
+     }
+  }
+
+  var url = 'https://api.torn.com/v2/user?selections=log&from=' + timestamp + '&log=4810';
+  // Make API request
+  var response = UrlFetchApp.fetch(url, params);
+  if (response.getResponseCode() == 200) 
+  {
+    var eventLog = JSON.parse(response.getContentText());
+    var logs = eventLog.log
+    var user = eventLog.sender
+    for (var sender in logs)
+    {
+      if (logs.hasOwnProperty(sender))
+      {
+        var logEntry = logs[sender];
+        var message = logEntry.data.message;
+        var user = logEntry.data.sender;
+        if (message.toLowerCase() == "museum join")
+        {
+          addUser(user);
+        }
+        else if (message.toLowerCase() == "museum leave")
+        {
+          removeUser(user);
+        }
+      }
+    }
+  }
+}
+
+function addUser(userID)
+{
+  var apiKey = 'DHVsKduOGwiMrbSn';
+  
+  const params = 
+  {
+     method : "GET",
+     contentType : "application/json", 
+     headers : {
+        Authorization : `ApiKey ${apiKey}`
+     }
+  }
+  const sheetName = 'userReference';
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+  var url = 'https://api.torn.com/v2/user?selections=profile&id=' + userID;
+  var response = UrlFetchApp.fetch(url, params);
+  if (response.getResponseCode() == 200) 
+    {
+      var userData = JSON.parse(response.getContentText());
+      var username =userData.name;
+      Logger.log(username)
+    }
+  const lastRow = sheet.getLastRow();
+  var rowValue = lastRow + 2;
+  var userProperties = [[userID],[username],[rowValue]]
+  var dataUnit;
+  var data = [];
+  for (var i = 0; i < userProperties.length; i++) {
+    dataUnit = userProperties[i].toString();
+    data.push(dataUnit);
+  }
+  sheet.appendRow(data);
+
+  var insertRow = rowValue - 1;
+  var sheetFlowers = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Flowers');
+  var sheetPlushies = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Plushies');
+  var sheetArtifacts = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Artifacts');
+  var sheetMaths = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Maths');
+  var cell = sheetFlowers.getRange(rowValue, 1);
+  cell.setFormula('=userReference!B' + insertRow);
+  var cell = sheetPlushies.getRange(rowValue, 1);
+  cell.setFormula('=userReference!B' + insertRow);
+  var cell = sheetArtifacts.getRange(rowValue, 1);
+  cell.setFormula('=userReference!B' + insertRow);
+  var cell = sheetMaths.getRange(rowValue, 1);
+  cell.setFormula('=userReference!B' + insertRow);
+}
+
+function removeUser(userID)
+{
+  
+  const sheetName = 'userReference';
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+  var searchRange = sheet.getDataRange();
+  var textFinder = searchRange.createTextFinder(userID).findNext();
+  userRow = textFinder.getRow();
+  Logger.log(userRow);
+  sheet.deleteRow(userRow);
+
+
+
+  const userMappingUpdate = generateUserReference();
+  var count = 0;
+  var row = 1
+  for (var playerID in userMappingUpdate) 
+    {
+      count++;
+      row++;
+      var userRow = userMappingUpdate[playerID].row;
+      Logger.log(count)
+      var updatedRow =count +2;
+      sheet.getRange(row, 3).setValue(updatedRow);
+    }
+  var userMapping = generateUserReference();
+  for (var playerID in userMapping) 
+    {
+      var userRow = userMapping[playerID].row;
+      var insertRow = userRow - 1
+      var sheetFlowers = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Flowers');
+      var sheetPlushies = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Plushies');
+      var sheetArtifacts = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Artifacts');
+      var sheetMaths = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Maths');
+      var cell = sheetFlowers.getRange(userRow, 1);
+      cell.setFormula('=userReference!B' + insertRow);
+      var cell = sheetPlushies.getRange(userRow, 1);
+      cell.setFormula('=userReference!B' + insertRow);
+      var cell = sheetArtifacts.getRange(userRow, 1);
+      cell.setFormula('=userReference!B' + insertRow);
+      var cell = sheetMaths.getRange(userRow, 1);
+      cell.setFormula('=userReference!B' + insertRow);
+    }
+}
+
 function checkDisplays() 
 {
   emptySpreadsheet();
@@ -238,17 +397,15 @@ function checkDisplays()
   const jsonItemString = HtmlService.createHtmlOutputFromFile("item_reference.json.html").getContent();
   const itemReference = JSON.parse(jsonItemString);
 
-  // Load user mapping JSON
-  const jsonUsersString = HtmlService.createHtmlOutputFromFile("user_mapping.json.html").getContent();
-  const userMapping = JSON.parse(jsonUsersString);
-
+ // Load user mapping JSON
+  const userMapping = generateUserReference();
 
   // Iterate through all users in the mapping
-  for (var userID in userMapping.users) 
+  for (var playerID in userMapping) 
   {
-    if (userMapping.users.hasOwnProperty(userID)) 
+    if (userMapping.hasOwnProperty(playerID)) 
     {
-        var url = 'https://api.torn.com/v2/user?selections=display&id='  + userID;
+        var url = 'https://api.torn.com/v2/user?selections=display&id='  + playerID;
 
       // Make API request
       var response = UrlFetchApp.fetch(url, params);
@@ -256,12 +413,13 @@ function checkDisplays()
       if (response.getResponseCode() == 200) 
       {
         var userData = JSON.parse(response.getContentText());
-        var userName = userID;
+        var userName = playerID;
         // Get display case information
         var displayCase = userData.display;
 
         // Find the rows with the user ID using user mapping
-        var userRow = userMapping.users[userName].row;
+        var userRow = userMapping[playerID].row;
+        
 
         // Iterate through all items in the display case
         for (var itemID in displayCase) 
@@ -269,7 +427,6 @@ function checkDisplays()
           if (displayCase.hasOwnProperty(itemID)) 
           {
             var itemInfo = displayCase[itemID];
-
             // Check if the item has a name and quantity
             if (itemInfo && 'name' in itemInfo && 'quantity' in itemInfo) 
             {
